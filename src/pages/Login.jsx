@@ -1,39 +1,39 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useState } from 'react'
 import users from '../data/users.json'
-import { getUserInitialData, userReducer } from '../reducers/User'
-// console.log(users);
+import { useGlobalContext } from '../context'
+import { useNavigate } from 'react-router-dom'
+
 
 const Login = () => {
+    const { userState, userDispatch } = useGlobalContext()
+    const navigate = useNavigate()
+
     const [username, setUsername] = useState(null)
     const [password, setPassword] = useState(null)
     const [pageMessage, setPageMessage] = useState(null)
-    const [userState, userDispatch] = useReducer(userReducer, getUserInitialData())
-    // console.log(userState);
 
     const checkCredentials = () => {
         if (username === null || password === null || username.trim() === '' || password.trim() === '') {
             setPageMessage('You have entered the wrong login credentials')
             return
         }
-        // console.log(username, password);
 
         let foundUser = false
 
-        users.forEach((user, idx) => {
-            // console.log(user, idx);
+        users.forEach(user => {
             if (user.username === username && user.password === password) {
-                // console.log(`Hello ${username}`);
-
                 foundUser = true
-                setPageMessage('Successfully logged in')
-
-                setInterval(() => {
-                    setPageMessage(null)
-                }, 3000)
 
                 userDispatch({ type: "SET_USERNAME", payload: username })
                 userDispatch({ type: "SET_IS_LOGGED_IN", payload: true })
                 userDispatch({ type: "SET_LOGIN_TIME", payload: new Date().getTime() })
+
+                setPageMessage('You have successfully logged in')
+
+                setTimeout(() => {
+                    setPageMessage(null)
+                    navigate('/')
+                }, 2000)
             }
         })
 
@@ -50,7 +50,7 @@ const Login = () => {
 
     return (
         <>
-            {!userState.isLoggedIn && (
+            {!userState.isLoggedIn ? (
                 <form>
                     <p>
                         {pageMessage}
@@ -58,10 +58,15 @@ const Login = () => {
                     <input placeholder='please enter your username' type="text" onInput={e => setUsername(e.target.value)} />
                     <input placeholder='please enter password' type="password" onInput={e => setPassword(e.target.value)} />
                     <button type='button' onClick={checkCredentials}>
-                        Log In
+                        Submit
                     </button>
                 </form>
-            )}
+            )
+                :
+                <p>
+                    {pageMessage}
+                </p>
+            }
         </>
     )
 }

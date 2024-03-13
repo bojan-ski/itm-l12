@@ -18,6 +18,8 @@ export const userReducer = (state, action) => {
             return {...state, isLoggedIn: action.payload}
         case "SET_LOGIN_TIME":
             return {...state, loginTime: action.payload}
+        case "REMOVE_USER_FROM_LS":
+            return {state: initialUserData}
         default:
             return state
     }
